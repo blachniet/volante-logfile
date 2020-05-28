@@ -1,0 +1,22 @@
+{
+  "name": "volante-logfile",
+  "version": "1.0.1",
+  "description": "volante spoke to log to file",
+  "author": "Mike Smiley <msmiley@alumni.rice.edu>",
+  "url": "https://github.com/msmiley/volante-logfile",
+  "repository": "msmiley/volante-logfile.git",
+  "license": "ISC",
+  "scripts": {
+    "dev": "node ./index.js"
+  },
+  "dependencies": {
+    "moment": "^2.26.0"
+  },
+  "devDependencies": {
+    "volante": "^3.0.0",
+    "volante-console": "^2.3.1"
+  },
+  "keywords": [
+    "volante"
+  ]
+}
