@@ -16,9 +16,11 @@ Options are changed using the `VolanteLogfile.update` event with an options obje
 
 ```js
 hub.emit('VolanteLogfile.update', {
-  timestamp: false, // add timestamp
-  level: 'any',     // level filter ['any', 'normal', 'debug', 'warning', 'error']
-  srcFilter: null   // filter src value by string match or regex
+	logVolante: false,                    // log all volante.log events
+	logPath: '/tmp/volante/',             // path to log files
+	rotationInterval: 'day',              // rotation interval
+	rotationCheckTimerMs: 60000,          // how often we will check for rotation
+	dateFormat: 'YYYY-MM-DDTHH.mm.ss[Z]', // format string used for filename dates
 });
 ```
 
