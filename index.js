@@ -30,15 +30,15 @@ module.exports = {
 		rotationInterval: 'day',              // rotation interval
 		rotationCheckTimerMs: 60000,          // how often we will check for rotation
 		dateFormat: 'YYYY-MM-DDTHH.mm.ss[Z]', // format string used for filename dates
+		exitOnStartupError: false,            // exit when error on startup
 	},
 	data() {
 		return {
-			enabled: false,            // not enabled until update has been called
-			currentFilePath: null,     // full path to current log file
-			currentFd: null,           // current file handle
-			lastOpenTime: null,        // timestamp of last open, to compare against current time
-			intervalTimer: null,       // interval timer object to check if rotate necessary
-			exitOnStartupError: false, // exit when error on startup
+			enabled: false,        // not enabled until update has been called
+			currentFilePath: null, // full path to current log file
+			currentFd: null,       // current file handle
+			lastOpenTime: null,    // timestamp of last open, to compare against current time
+			intervalTimer: null,   // interval timer object to check if rotate necessary
 		};
 	},
 	updated() {
