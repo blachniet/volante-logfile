@@ -20,7 +20,7 @@ module.exports = {
 				this.render(obj);
 			}
 		},
-		'VolanteLogfile.log'(obj, callback) {
+		'VolanteLogfile'(obj, callback) {
 			this.render(...arguments);
 		},
 	},
@@ -61,7 +61,7 @@ module.exports = {
 				if (err) {
 					this.$error('error creating logPath directory', this.logPath);
 					if (this.exitOnStartupError) {
-						this.$shutdown();
+						return this.$shutdown();
 					}
 				}
 				// generate filename
@@ -79,7 +79,7 @@ module.exports = {
 					this.$error('error opening logfile', e);
 					this.enabled = false;
 					if (this.exitOnStartupError) {
-						this.$shutdown();
+						return this.$shutdown();
 					}
 				}
 			});
