@@ -20,7 +20,7 @@ module.exports = {
 				this.render(obj);
 			}
 		},
-		'VolanteLogFile.log'(obj, callback) {
+		'VolanteLogfile.log'(obj, callback) {
 			this.render(...arguments);
 		},
 	},
@@ -33,17 +33,19 @@ module.exports = {
 	},
 	data() {
 		return {
-			enabled: false,        // not enabled until update has been called
-			currentFilePath: null, // full path to current log file
-			currentFd: null,       // current file handle
-			lastOpenTime: null,    // timestamp of last open, to compare against current time
-			intervalTimer: null,   // interval timer object to check if rotate necessary
+			enabled: false,            // not enabled until update has been called
+			currentFilePath: null,     // full path to current log file
+			currentFd: null,           // current file handle
+			lastOpenTime: null,        // timestamp of last open, to compare against current time
+			intervalTimer: null,       // interval timer object to check if rotate necessary
+			exitOnStartupError: false, // exit when error on startup
 		};
 	},
 	updated() {
 		this.openFile();
 		// reset interval timer
 		if (this.intervalTimer) {
+			this.$log(`setting log rotation interval to ${this.rotationInterval}`);
 			clearInterval(this.intervalTimer);
 			this.intervalTimer = setInterval(this.checkRotation, this.rotationCheckTimerMs);
 		}
@@ -58,6 +60,9 @@ module.exports = {
 				this.$debug(`ensuring path and opening log file in ${this.logPath}`);
 				if (err) {
 					this.$error('error creating logPath directory', this.logPath);
+					if (this.exitOnStartupError) {
+						this.$shutdown();
+					}
 				}
 				// generate filename
 				let ts = moment();
@@ -73,6 +78,9 @@ module.exports = {
 				} catch (e) {
 					this.$error('error opening logfile', e);
 					this.enabled = false;
+					if (this.exitOnStartupError) {
+						this.$shutdown();
+					}
 				}
 			});
 		},
