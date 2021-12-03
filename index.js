@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const moment = require('moment');
 
 //
 // handles logging certain events from the volante.Hub and renders them to
@@ -25,11 +24,10 @@ module.exports = {
 		},
 	},
 	props: {
-		logVolante: false,                    // log all volante.log events
+		logVolante: true,                    // log all volante.log events
 		logPath: '/tmp/volante/',             // path to log files
 		rotationInterval: 'day',              // rotation interval
 		rotationCheckTimerMs: 60000,          // how often we will check for rotation
-		dateFormat: 'YYYY-MM-DDTHH.mm.ss[Z]', // format string used for filename dates
 		exitOnStartupError: false,            // exit when error on startup
 	},
 	data() {
@@ -65,8 +63,8 @@ module.exports = {
 					}
 				}
 				// generate filename
-				let ts = moment();
-				let filename = `${ts.format(this.dateFormat)}_XXX.log`;
+				let ts = new Date();
+				let filename = `${ts.toISOString()}_XXX.log`;
 				this.currentFilePath = path.join(this.logPath, filename);
 
 				try {
@@ -74,7 +72,7 @@ module.exports = {
 					this.$log('opened log file', this.currentFilePath);
 					// set enabled if open successful
 					this.enabled = true;
-					this.lastOpenTime = ts;
+					this.lastOpenTime = ts.getTime();
 				} catch (e) {
 					this.$error('error opening logfile', e);
 					this.enabled = false;
@@ -82,6 +80,7 @@ module.exports = {
 						return this.$shutdown();
 					}
 				}
+				this.$ready(`writing log files in ${this.logPath}`);
 			});
 		},
 		//
@@ -91,7 +90,7 @@ module.exports = {
 			if (this.currentFd && this.currentFilePath) {
 				this.$debug('closing file');
 				fs.closeSync(this.currentFd);
-				let newFilename = this.currentFilePath.replace(/XXX/, moment().format(this.dateFormat));
+				let newFilename = this.currentFilePath.replace(/XXX/, new Date().toISOString());
 				fs.renameSync(this.currentFilePath, newFilename);
 				this.currentFd = null;
 				this.currentFilePath = null;
@@ -109,7 +108,23 @@ module.exports = {
 		// check the current time against the start of file to see if we need to rotate
 		//
 		checkRotation() {
-			if (moment().isAfter(moment(this.lastOpenTime).add(1, this.rotationInterval))) {
+			let rotationMillisecs;
+			switch (this.rotationInterval) {
+				case 'minute':
+					rotationMillisecs = 60000;
+					break;
+				case 'hour':
+					rotationMillisecs = 3600000;
+					break;
+				case 'day':
+					rotationMillisecs = 86400000;
+					break;
+				case 'week':
+					rotationMillisecs = 604800000;
+					break;
+			}
+			let now = new Date().getTime();
+			if (now > this.lastOpenTime + rotationMillisecs) {
 				this.rotateFile();
 			}
 		},
@@ -124,7 +139,7 @@ module.exports = {
 				} catch (e) {
 					callback && callback('unable to write to log file');
 					// use console to avoid event loops
-					console.error('VolanteLogFile unable to write to log file');
+					console.error('VolanteLogfile unable to write to log file');
 				}
 			}
 		},
@@ -143,7 +158,6 @@ if (require.main === module) {
 	hub.emit('VolanteLogfile.update', {
 		rotationInterval: 'minute',
 		rotationCheckTimerMs: 5000,
-		logVolante: true,
 	});
 }
 
